@@ -41,6 +41,7 @@
 
 NSString * const kPrefKeepMultipleRuns = @"keepMultipleRuns";
 NSString * const kPrefCloseWithoutSaving = @"closeWithoutSaving";
+NSString * const kPrefAllowedApplicationName = @"allowedApplicationName";
 
 NSString * const kPrefPublishesBonjourService = @"publishesBonjourService";
 NSString * const kPrefHasDirectTCPIPResponder = @"hasDirectTCPIPResponder";
@@ -294,9 +295,14 @@ NSString * const kPref_ApplicationFilterSet = @"appFilterSet";
 	// we are being called on the main thread (using dispatch_sync() from transport, so take care)
 	assert([NSThread isMainThread]);
 
-    if ([aConnection.clientName isEqualToString:@"QQ"]) {
+    NSString *allowedAppName = [[NSUserDefaults standardUserDefaults] stringForKey:kPrefAllowedApplicationName];
+    
+    if (allowedAppName && allowedAppName.length > 0 &&
+        ![allowedAppName isEqualToString:aConnection.clientName]) {
+        [aConnection shutdown];
         return;
     }
+    
 	// Go through all open documents,
 	// Detect reconnection from a previously disconnected client
 	NSDocumentController *docController = [NSDocumentController sharedDocumentController];
